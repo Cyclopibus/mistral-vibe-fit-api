@@ -12,6 +12,7 @@ authors = [
 dependencies = [
     "garmin-fit-sdk>=21.0.0",
     "litestar>=2.0.0",
+    "uvicorn>=0.27.0",
     "sqlalchemy>=2.0.0",
     "pandas>=2.0.0",
     "matplotlib>=3.0.0",

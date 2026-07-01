@@ -35,7 +35,7 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 │   ├── test_stats.py         # Tests for stats engine
 │   └── test_api.py           # Tests for API endpoints
 ├── pyproject.toml            # Project configuration for uv
-├── requirements.txt          # Legacy requirements (for pip)
+├── requirements.txt          # Legacy requirements (for pip compatibility)
 └── README.md
 ```
 
@@ -88,26 +88,22 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 
 ## Running the API
 
-### With uv
+### With uv (Recommended)
 
 ```bash
-# Activate the virtual environment
-source .venv/bin/activate  # On Unix
-.\.venv\Scripts\activate   # On Windows
+# Run the API
+uv run litestar --app src.api.main:app run
 
-# Start the API
-litestar run src/api/main.py
+# Or with auto-reload for development
+uv run litestar --app src.api.main:app run --reload
 ```
 
-### With pip
+### With pip (Legacy)
 
 ```bash
 litestar run src/api/main.py
-```
 
-Or with uvicorn:
-
-```bash
+# Or with uvicorn
 uvicorn src.api.main:app --reload
 ```
 
@@ -243,7 +239,10 @@ uv sync
 uv sync --all-extras
 
 # Run the API
-uv run litestar run src/api/main.py
+uv run litestar --app src.api.main:app run
+
+# Run the API with auto-reload
+uv run litestar --app src.api.main:app run --reload
 
 # Run tests
 uv run pytest tests/ -v
@@ -335,6 +334,40 @@ We use `uv` as our Python package manager because it provides:
 - **Simple**: Single command interface for all operations
 - **Reliable**: Deterministic builds and reproducible environments
 - **Feature-rich**: Built-in virtual environment management, dependency locking, and more
+
+## Troubleshooting
+
+### "uvicorn is not installed" error
+
+This error occurs when trying to run the API without uvicorn. The fix is to ensure uvicorn is included in your dependencies. In this project, we've added it directly to the main dependencies in `pyproject.toml`:
+
+```toml
+dependencies = [
+    "garmin-fit-sdk>=21.0.0",
+    "litestar>=2.0.0",
+    "uvicorn>=0.27.0",  # <-- This is required for litestar run
+    "sqlalchemy>=2.0.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.0.0",
+]
+```
+
+After updating the `pyproject.toml`, run:
+```bash
+uv sync
+```
+
+### Correct command to run the API
+
+Use the `--app` flag to specify the application module:
+```bash
+uv run litestar --app src.api.main:app run
+```
+
+Not:
+```bash
+uv run litestar run src/api/main.py  # ❌ This will fail
+```
 
 ## License
 

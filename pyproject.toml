@@ -29,7 +29,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-extras = ["dev"]
+# uv configuration
+python-preference = "only-managed"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]

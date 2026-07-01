@@ -52,7 +52,7 @@ coverage.xml
 
 # Environments
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/
@@ -76,3 +76,10 @@ venv.bak/
 
 # Logs
 *.log
+
+# uv specific
+uv.lock
+.uv.cache/
+
+# Virtual environment
+.venv/

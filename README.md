@@ -34,7 +34,8 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 │   ├── test_storage.py       # Tests for storage service
 │   ├── test_stats.py         # Tests for stats engine
 │   └── test_api.py           # Tests for API endpoints
-├── requirements.txt
+├── pyproject.toml            # Project configuration for uv
+├── requirements.txt          # Legacy requirements (for pip)
 └── README.md
 ```
 
@@ -43,9 +44,31 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 ### Prerequisites
 
 - Python 3.11+
-- pip
 
-### Installation
+### Installation with uv (Recommended)
+
+1. Install `uv` (if not already installed):
+   ```bash
+   pip install uv
+   ```
+
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/Cyclopibus/mistral-vibe-fit-api.git
+   cd mistral-vibe-fit-api
+   ```
+
+3. Install dependencies with uv:
+   ```bash
+   uv sync
+   ```
+
+4. (Optional) Install dev dependencies:
+   ```bash
+   uv sync --all-extras
+   ```
+
+### Installation with pip (Legacy)
 
 1. Clone the repository:
    ```bash
@@ -58,15 +81,25 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
    pip install -r requirements.txt
    ```
 
-3. (Optional) Set up PostgreSQL:
+3. (Optional) Install dev dependencies:
    ```bash
-   # Edit the database URL in your application or set environment variable
-   export DATABASE_URL="postgresql://user:password@localhost/fit_api"
+   pip install -r requirements.txt pytest pytest-cov python-dotenv
    ```
 
 ## Running the API
 
-Start the API server:
+### With uv
+
+```bash
+# Activate the virtual environment
+source .venv/bin/activate  # On Unix
+.\.venv\Scripts\activate   # On Windows
+
+# Start the API
+litestar run src/api/main.py
+```
+
+### With pip
 
 ```bash
 litestar run src/api/main.py
@@ -78,7 +111,7 @@ Or with uvicorn:
 uvicorn src.api.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`.
+The API will be available at `http://localhost:8000`. OpenAPI documentation is available at `/schema`.
 
 ## API Endpoints
 
@@ -104,81 +137,17 @@ graph TD
     Activity --> Lap
     Activity --> Record
 
-    User ["User
-    - id
-    - username
-    - email
-    - created_at
-    - updated_at"]
+    User ["User\n    - id\n    - username\n    - email\n    - created_at\n    - updated_at"]
 
-    Device ["Device
-    - id
-    - manufacturer
-    - product_name
-    - serial_number
-    - software_version
-    - hardware_version"]
+    Device ["Device\n    - id\n    - manufacturer\n    - product_name\n    - serial_number\n    - software_version\n    - hardware_version"]
 
-    Activity ["Activity
-    - id
-    - activity_id
-    - activity_type
-    - start_time
-    - duration
-    - total_distance
-    - total_ascent
-    - total_descent
-    - num_sessions
-    - num_laps"]
+    Activity ["Activity\n    - id\n    - activity_id\n    - activity_type\n    - start_time\n    - duration\n    - total_distance\n    - total_ascent\n    - total_descent\n    - num_sessions\n    - num_laps"]
 
-    Session ["Session
-    - id
-    - session_id
-    - start_time
-    - total_elapsed_time
-    - total_timer_time
-    - total_distance
-    - avg_speed
-    - max_speed
-    - avg_heart_rate
-    - max_heart_rate
-    - avg_cadence
-    - max_cadence
-    - avg_power
-    - max_power
-    - sport
-    - sub_sport"]
+    Session ["Session\n    - id\n    - session_id\n    - start_time\n    - total_elapsed_time\n    - total_timer_time\n    - total_distance\n    - avg_speed\n    - max_speed\n    - avg_heart_rate\n    - max_heart_rate\n    - avg_cadence\n    - max_cadence\n    - avg_power\n    - max_power\n    - sport\n    - sub_sport"]
 
-    Lap ["Lap
-    - id
-    - lap_id
-    - start_time
-    - total_elapsed_time
-    - total_timer_time
-    - total_distance
-    - avg_speed
-    - max_speed
-    - avg_heart_rate
-    - max_heart_rate
-    - avg_cadence
-    - max_cadence
-    - avg_power
-    - max_power
-    - intensity"]
+    Lap ["Lap\n    - id\n    - lap_id\n    - start_time\n    - total_elapsed_time\n    - total_timer_time\n    - total_distance\n    - avg_speed\n    - max_speed\n    - avg_heart_rate\n    - max_heart_rate\n    - avg_cadence\n    - max_cadence\n    - avg_power\n    - max_power\n    - intensity"]
 
-    Record ["Record
-    - id
-    - timestamp
-    - position_lat
-    - position_long
-    - distance
-    - speed
-    - cadence
-    - power
-    - heart_rate
-    - altitude
-    - temperature
-    - time_from_course"]
+    Record ["Record\n    - id\n    - timestamp\n    - position_lat\n    - position_long\n    - distance\n    - speed\n    - cadence\n    - power\n    - heart_rate\n    - altitude\n    - temperature\n    - time_from_course"]
 ```
 
 ## Example API Calls
@@ -262,11 +231,48 @@ visualizer = Visualizer()
 plot_data = visualizer.generate_plot(storage.get_activity(activity_id), "power")
 ```
 
+## Project Management with uv
+
+### Common uv Commands
+
+```bash
+# Install the project
+uv sync
+
+# Install with all extras (dev dependencies)
+uv sync --all-extras
+
+# Run the API
+uv run litestar run src/api/main.py
+
+# Run tests
+uv run pytest tests/ -v
+
+# Run tests with coverage
+uv run pytest tests/ --cov=src --cov-report=term
+
+# Add a new dependency
+uv add package-name
+
+# Add a dev dependency
+uv add --dev package-name
+
+# Update all dependencies
+uv lock --upgrade
+
+# Show dependency graph
+uv tree
+```
+
 ## Testing
 
 Run all tests:
 
 ```bash
+# With uv
+uv run pytest tests/ -v
+
+# With pip
 pytest tests/ -v
 ```
 
@@ -319,6 +325,16 @@ All plots use the darker green color (`#006400`) as specified in the requirement
 - ✅ Plots are generated with **darker green** (`#006400`)
 - ✅ Comprehensive test coverage for parsing, storage, and stats
 - ✅ Git history shows regular, meaningful commits
+
+## Why uv?
+
+We use `uv` as our Python package manager because it provides:
+
+- **Blazing Fast**: Much faster dependency resolution and installation
+- **Modern**: Built with Rust, designed for Python 3.11+
+- **Simple**: Single command interface for all operations
+- **Reliable**: Deterministic builds and reproducible environments
+- **Feature-rich**: Built-in virtual environment management, dependency locking, and more
 
 ## License
 

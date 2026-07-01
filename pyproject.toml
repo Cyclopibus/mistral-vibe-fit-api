@@ -1,0 +1,51 @@
+[project]
+name = "mistral-vibe-fit-api"
+version = "1.0.0"
+description = "Garmin FIT File API for parsing, storing, and analyzing FIT files"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Cyclopibus", email = "cyclopibus@example.com" }
+]
+
+dependencies = [
+    "garmin-fit-sdk>=21.0.0",
+    "litestar>=2.0.0",
+    "sqlalchemy>=2.0.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+extras = ["dev"]
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

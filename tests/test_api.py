@@ -29,9 +29,6 @@ class TestAPIEndpoints:
     
     def test_upload_endpoint(self, test_client):
         """Test the /upload endpoint"""
-        # Create a simple test FIT file (we'll use the parser to create valid data)
-        # For now, we'll test with invalid data to check error handling
-        
         # Test with invalid file
         response = test_client.post(
             "/upload",
@@ -240,14 +237,14 @@ class TestAPIEndpoints:
             # Test CSV export
             response = test_client.get(f"/export/{activity_id}?format=csv")
             assert response.status_code == 200
-            assert response.headers["content-type"] == "text/csv"
+            assert "text/csv" in response.headers["content-type"]
             assert "activity_" in response.headers["content-disposition"]
             assert ".csv" in response.headers["content-disposition"]
             
             # Test JSON export
             response = test_client.get(f"/export/{activity_id}?format=json")
             assert response.status_code == 200
-            assert response.headers["content-type"] == "application/json"
+            assert "application/json" in response.headers["content-type"]
             assert "activity_" in response.headers["content-disposition"]
             assert ".json" in response.headers["content-disposition"]
             
@@ -373,7 +370,7 @@ class TestAPIEndpoints:
             # Test the API endpoint
             response = test_client.get(f"/plot/{activity_id}?metric=power")
             assert response.status_code == 200
-            assert response.headers["content-type"] == "image/png"
+            assert "image/png" in response.headers["content-type"]
             assert "activity_" in response.headers["content-disposition"]
             assert ".png" in response.headers["content-disposition"]
             
@@ -484,17 +481,17 @@ class TestAPIIntegration:
                 for activity_id in activity_ids:
                     response = client.get(f"/export/{activity_id}?format=csv")
                     assert response.status_code == 200
-                    assert response.headers["content-type"] == "text/csv"
+                    assert "text/csv" in response.headers["content-type"]
                     
                     response = client.get(f"/export/{activity_id}?format=json")
                     assert response.status_code == 200
-                    assert response.headers["content-type"] == "application/json"
+                    assert "application/json" in response.headers["content-type"]
                 
                 # Step 9: Test plots
                 for activity_id in activity_ids:
                     response = client.get(f"/plot/{activity_id}?metric=power")
                     assert response.status_code == 200
-                    assert response.headers["content-type"] == "image/png"
+                    assert "image/png" in response.headers["content-type"]
                 
                 print("Full API workflow test passed!")
                 

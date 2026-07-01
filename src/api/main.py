@@ -19,6 +19,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_RE
 from litestar.exceptions import HTTPException
 from litestar.params import Body
 from litestar.openapi import OpenAPIConfig
+from litestar.datastructures import State
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend for web
@@ -37,19 +38,30 @@ stats_engine = StatsEngine(storage)
 visualizer = Visualizer()
 
 
-@post("/upload", status_code=HTTP_201_CREATED)
-async def upload_file(data: UploadFile) -> dict:
+@post("/upload")
+async def upload_file(request: Request) -> dict:
     """
     Upload and parse a FIT file.
     
     Expects a FIT file upload and returns the activity ID.
     """
     try:
+        # Get the form data
+        form_data = await request.form()
+        
+        # Get the file
+        file = form_data.get("file")
+        if not file or not hasattr(file, 'file'):
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail="No file provided or invalid file format"
+            )
+        
         # Save the uploaded file temporarily
         temp_path = None
         try:
             # Read the file content
-            content = data.file.read()
+            content = file.file.read()
             
             # Create a temporary file
             with tempfile.NamedTemporaryFile(suffix=".fit", delete=False) as temp_file:
@@ -79,7 +91,7 @@ async def upload_file(data: UploadFile) -> dict:
         )
 
 
-@get("/activities", status_code=HTTP_200_OK)
+@get("/activities")
 async def list_activities(
     user_id: Optional[int] = None,
     start_date: Optional[str] = None,
@@ -117,7 +129,7 @@ async def list_activities(
         )
 
 
-@get("/activities/{activity_id:int}", status_code=HTTP_200_OK)
+@get("/activities/{activity_id:int}")
 async def get_activity(activity_id: int) -> dict:
     """
     Get detailed information for a specific activity.
@@ -135,6 +147,8 @@ async def get_activity(activity_id: int) -> dict:
         
         return activity_data
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -142,7 +156,7 @@ async def get_activity(activity_id: int) -> dict:
         )
 
 
-@get("/stats", status_code=HTTP_200_OK)
+@get("/stats")
 async def get_stats(
     user_id: Optional[int] = None,
     start_date: Optional[str] = None,
@@ -182,7 +196,7 @@ async def get_stats(
         )
 
 
-@get("/compare", status_code=HTTP_200_OK)
+@get("/compare")
 async def compare_activities(activity_ids: str) -> dict:
     """
     Compare multiple activities side by side.
@@ -221,7 +235,7 @@ async def compare_activities(activity_ids: str) -> dict:
         )
 
 
-@get("/export/{activity_id:int}", status_code=HTTP_200_OK)
+@get("/export/{activity_id:int}")
 async def export_activity(
     activity_id: int,
     format: str = "csv"
@@ -272,6 +286,8 @@ async def export_activity(
                 detail=f"Unsupported format: {format}. Use 'csv' or 'json'."
             )
             
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -279,7 +295,7 @@ async def export_activity(
         )
 
 
-@get("/plot/{activity_id:int}", status_code=HTTP_200_OK)
+@get("/plot/{activity_id:int}")
 async def plot_activity(
     activity_id: int,
     metric: str = "power",
@@ -316,6 +332,8 @@ async def plot_activity(
             }
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -323,7 +341,7 @@ async def plot_activity(
         )
 
 
-@get("/bike-metrics/{activity_id:int}", status_code=HTTP_200_OK)
+@get("/bike-metrics/{activity_id:int}")
 async def get_bike_metrics(activity_id: int) -> dict:
     """
     Get bike-specific metrics for an activity.
@@ -341,6 +359,8 @@ async def get_bike_metrics(activity_id: int) -> dict:
         
         return bike_metrics
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -348,7 +368,7 @@ async def get_bike_metrics(activity_id: int) -> dict:
         )
 
 
-@get("/trends", status_code=HTTP_200_OK)
+@get("/trends")
 async def get_trends(
     user_id: Optional[int] = None,
     start_date: Optional[str] = None,

@@ -24,12 +24,9 @@ dev = [
     "python-dotenv>=1.0.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [tool.uv]
-# uv configuration
+# uv configuration for application (not a library)
+no-build = true
 python-preference = "only-managed"
 
 [tool.pytest.ini_options]

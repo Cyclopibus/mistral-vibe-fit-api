@@ -15,7 +15,7 @@ from pathlib import Path
 from litestar import Litestar, post, get, Request
 from litestar.datastructures import UploadFile
 from litestar.response import Response, File
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from litestar.exceptions import HTTPException
 from litestar.params import Body
 from litestar.openapi import OpenAPIConfig
@@ -36,6 +36,64 @@ parser = FITParser()
 storage = DataStorage()
 stats_engine = StatsEngine(storage)
 visualizer = Visualizer()
+
+
+@get("/health")
+async def health_check() -> dict:
+    """
+    Health check endpoint to verify the API is running.
+    
+    Returns:
+        Dictionary with health status and version information
+    """
+    try:
+        # Check database connection
+        db_status = "healthy"
+        try:
+            storage.get_activity_count()
+        except Exception:
+            db_status = "unhealthy"
+        
+        return {
+            "status": "healthy" if db_status == "healthy" else "degraded",
+            "database": db_status,
+            "version": "1.0.0",
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+
+
+@get("/")
+async def root() -> dict:
+    """
+    Root endpoint with API information.
+    
+    Returns:
+        Dictionary with API name, version, and available endpoints
+    """
+    return {
+        "name": "Garmin FIT File API",
+        "version": "1.0.0",
+        "description": "API for parsing, storing, and analyzing Garmin FIT files",
+        "docs": "/schema",
+        "health": "/health",
+        "endpoints": {
+            "upload": "POST /upload - Upload and parse FIT files",
+            "activities": "GET /activities - List activities",
+            "activity_detail": "GET /activities/{id} - Get activity details",
+            "stats": "GET /stats - Get aggregate statistics",
+            "compare": "GET /compare - Compare activities",
+            "export": "GET /export/{id} - Export activity data",
+            "plot": "GET /plot/{id} - Generate plots",
+            "bike_metrics": "GET /bike-metrics/{id} - Get bike-specific metrics",
+            "trends": "GET /trends - Get time series trends"
+        }
+    }
 
 
 @post("/upload")
@@ -119,7 +177,9 @@ async def list_activities(
         
         return {
             "activities": activities,
-            "total_count": total_count
+            "total_count": total_count,
+            "limit": limit,
+            "offset": offset
         }
         
     except Exception as e:
@@ -410,6 +470,8 @@ async def get_trends(
 # Create the Litestar app
 app = Litestar(
     route_handlers=[
+        health_check,
+        root,
         upload_file,
         list_activities,
         get_activity,

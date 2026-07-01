@@ -36,6 +36,7 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 │   └── test_api.py           # Tests for API endpoints
 ├── pyproject.toml            # Project configuration for uv
 ├── requirements.txt          # Legacy requirements (for pip compatibility)
+├── LICENSE                   # MIT License
 └── README.md
 ```
 
@@ -94,8 +95,11 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 # Run the API
 uv run litestar --app src.api.main:app run
 
-# Or with auto-reload for development
+# Run with auto-reload for development
 uv run litestar --app src.api.main:app run --reload
+
+# Run on a specific port
+uv run litestar --app src.api.main:app run --port 8080
 ```
 
 ### With pip (Legacy)
@@ -113,6 +117,8 @@ The API will be available at `http://localhost:8000`. OpenAPI documentation is a
 
 | Endpoint | Method | Description | Parameters |
 |----------|--------|-------------|------------|
+| `/` | GET | API information and available endpoints | None |
+| `/health` | GET | Health check endpoint | None |
 | `/upload` | POST | Upload and parse a FIT file | `file` (multipart) |
 | `/activities` | GET | List activities with filters | `user_id`, `start_date`, `end_date`, `activity_type`, `limit`, `offset` |
 | `/activities/{id}` | GET | Get activity details | `id` (path) |
@@ -147,6 +153,18 @@ graph TD
 ```
 
 ## Example API Calls
+
+### Check API health
+
+```bash
+curl http://localhost:8000/health
+```
+
+### Get API info
+
+```bash
+curl http://localhost:8000/
+```
 
 ### Upload a FIT file
 

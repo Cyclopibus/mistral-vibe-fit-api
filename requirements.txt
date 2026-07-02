@@ -1,8 +1,0 @@
-garmin-fit-sdk>=1.0.0
-litestar>=2.0.0
-sqlalchemy>=2.0.0
-pandas>=2.0.0
-matplotlib>=3.0.0
-pytest>=7.0.0
-pytest-cov>=4.0.0
-python-dotenv>=1.0.0

@@ -81,5 +81,5 @@ venv.bak/
 uv.lock
 .uv.cache/
 
-# Virtual environment
-.venv/
+# Data directory
+data/

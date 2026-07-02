@@ -14,82 +14,31 @@ A Python API using **Litestar** to parse, store, and analyze Garmin FIT files ex
 - **Export**: Export data as CSV or JSON
 - **RESTful API**: Comprehensive endpoints for all functionality
 
-## Project Structure
-
-```
-/project
-├── /src
-│   ├── /parsers
-│   │   └── fit_parser.py      # FIT file parsing using fit-python-sdk
-│   ├── /services
-│   │   ├── storage.py         # Database storage service
-│   │   ├── stats.py           # Statistics and comparison engine
-│   │   └── visualizer.py       # Plot generation service
-│   ├── /api
-│   │   └── main.py            # Litestar API endpoints
-│   └── /database
-│       └── models.py          # SQLAlchemy database models
-├── /tests
-│   ├── test_fit_parser.py    # Tests for FIT parser
-│   ├── test_storage.py       # Tests for storage service
-│   ├── test_stats.py         # Tests for stats engine
-│   └── test_api.py           # Tests for API endpoints
-├── pyproject.toml            # Project configuration for uv
-├── requirements.txt          # Legacy requirements (for pip compatibility)
-├── LICENSE                   # MIT License
-└── README.md
-```
-
 ## Setup
 
 ### Prerequisites
 
 - Python 3.11+
+- uv package manager
 
-### Installation with uv (Recommended)
+### Installation
 
-1. Install `uv` (if not already installed):
-   ```bash
-   pip install uv
-   ```
+```bash
+# Install uv
+pip install uv
 
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/Cyclopibus/mistral-vibe-fit-api.git
-   cd mistral-vibe-fit-api
-   ```
+# Clone the repository
+git clone https://github.com/Cyclopibus/mistral-vibe-fit-api.git
+cd mistral-vibe-fit-api
 
-3. Install dependencies with uv:
-   ```bash
-   uv sync
-   ```
+# Install dependencies
+uv sync
 
-4. (Optional) Install dev dependencies:
-   ```bash
-   uv sync --all-extras
-   ```
-
-### Installation with pip (Legacy)
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Cyclopibus/mistral-vibe-fit-api.git
-   cd mistral-vibe-fit-api
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. (Optional) Install dev dependencies:
-   ```bash
-   pip install -r requirements.txt pytest pytest-cov python-dotenv
-   ```
+# Install with dev dependencies
+uv sync --all-extras
+```
 
 ## Running the API
-
-### With uv (Recommended)
 
 ```bash
 # Run the API
@@ -97,74 +46,51 @@ uv run litestar --app src.api.main:app run
 
 # Run with auto-reload for development
 uv run litestar --app src.api.main:app run --reload
-
-# Run on a specific port
-uv run litestar --app src.api.main:app run --port 8080
-```
-
-### With pip (Legacy)
-
-```bash
-litestar run src/api/main.py
-
-# Or with uvicorn
-uvicorn src.api.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`. OpenAPI documentation is available at `/schema`.
 
 ## API Endpoints
 
-| Endpoint | Method | Description | Parameters |
-|----------|--------|-------------|------------|
-| `/` | GET | API information and available endpoints | None |
-| `/health` | GET | Health check endpoint | None |
-| `/upload` | POST | Upload and parse a FIT file | `file` (multipart) |
-| `/activities` | GET | List activities with filters | `user_id`, `start_date`, `end_date`, `activity_type`, `limit`, `offset` |
-| `/activities/{id}` | GET | Get activity details | `id` (path) |
-| `/stats` | GET | Aggregate statistics | `user_id`, `start_date`, `end_date`, `metric`, `activity_type` |
-| `/compare` | GET | Compare activities | `activity_ids` (comma-separated) |
-| `/export/{id}` | GET | Export activity data | `id` (path), `format` (csv/json) |
-| `/plot/{id}` | GET | Generate plot | `id` (path), `metric`, `width`, `height` |
-| `/bike-metrics/{id}` | GET | Get bike-specific metrics | `id` (path) |
-| `/trends` | GET | Get time series trends | `user_id`, `start_date`, `end_date`, `metric`, `activity_type`, `time_window` |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | API information and available endpoints |
+| `/health` | GET | Health check endpoint |
+| `/upload` | POST | Upload and parse a FIT file |
+| `/activities` | GET | List activities with filters |
+| `/activities/{id}` | GET | Get activity details |
+| `/stats` | GET | Aggregate statistics |
+| `/compare` | GET | Compare activities |
+| `/export/{id}` | GET | Export activity data |
+| `/plot/{id}` | GET | Generate plot |
+| `/bike-metrics/{id}` | GET | Get bike-specific metrics |
+| `/trends` | GET | Get time series trends |
 
-## Database Schema
+## Project Structure
 
-```mermaid
-graph TD
-    User --> Activity
-    Device --> Activity
-    Activity --> Session
-    Activity --> Lap
-    Activity --> Record
-
-    User ["User\n    - id\n    - username\n    - email\n    - created_at\n    - updated_at"]
-
-    Device ["Device\n    - id\n    - manufacturer\n    - product_name\n    - serial_number\n    - software_version\n    - hardware_version"]
-
-    Activity ["Activity\n    - id\n    - activity_id\n    - activity_type\n    - start_time\n    - duration\n    - total_distance\n    - total_ascent\n    - total_descent\n    - num_sessions\n    - num_laps"]
-
-    Session ["Session\n    - id\n    - session_id\n    - start_time\n    - total_elapsed_time\n    - total_timer_time\n    - total_distance\n    - avg_speed\n    - max_speed\n    - avg_heart_rate\n    - max_heart_rate\n    - avg_cadence\n    - max_cadence\n    - avg_power\n    - max_power\n    - sport\n    - sub_sport"]
-
-    Lap ["Lap\n    - id\n    - lap_id\n    - start_time\n    - total_elapsed_time\n    - total_timer_time\n    - total_distance\n    - avg_speed\n    - max_speed\n    - avg_heart_rate\n    - max_heart_rate\n    - avg_cadence\n    - max_cadence\n    - avg_power\n    - max_power\n    - intensity"]
-
-    Record ["Record\n    - id\n    - timestamp\n    - position_lat\n    - position_long\n    - distance\n    - speed\n    - cadence\n    - power\n    - heart_rate\n    - altitude\n    - temperature\n    - time_from_course"]
+```
+project/
+├── src/
+│   ├── parsers/
+│   │   └── fit_parser.py      # FIT file parsing
+│   ├── services/
+│   │   ├── storage.py         # Database storage
+│   │   ├── stats.py           # Statistics engine
+│   │   └── visualizer.py       # Plot generation
+│   ├── api/
+│   │   └── main.py            # Litestar endpoints
+│   └── database/
+│       └── models.py          # SQLAlchemy models
+├── tests/
+│   ├── test_fit_parser.py
+│   ├── test_storage.py
+│   ├── test_stats.py
+│   └── test_api.py
+├── pyproject.toml            # Project configuration
+└── README.md
 ```
 
-## Example API Calls
-
-### Check API health
-
-```bash
-curl http://localhost:8000/health
-```
-
-### Get API info
-
-```bash
-curl http://localhost:8000/
-```
+## Usage Examples
 
 ### Upload a FIT file
 
@@ -178,161 +104,27 @@ curl -X POST -F "file=@activity.fit" http://localhost:8000/upload
 curl http://localhost:8000/activities
 ```
 
-### Get activity details
-
-```bash
-curl http://localhost:8000/activities/1
-```
-
 ### Get statistics
 
 ```bash
-curl "http://localhost:8000/stats?metric=power&activity_type=cycling"
+curl "http://localhost:8000/stats?metric=power"
 ```
 
-### Compare activities
+## Project Management
 
 ```bash
-curl "http://localhost:8000/compare?activity_ids=1,2,3"
-```
-
-### Export as CSV
-
-```bash
-curl http://localhost:8000/export/1?format=csv -o activity.csv
-```
-
-### Get bike metrics
-
-```bash
-curl http://localhost:8000/bike-metrics/1
-```
-
-### Get trends
-
-```bash
-curl "http://localhost:8000/trends?metric=power&time_window=daily"
-```
-
-## Python Usage
-
-```python
-from src.parsers.fit_parser import FITParser
-from src.services.storage import DataStorage
-from src.services.stats import StatsEngine
-from src.services.visualizer import Visualizer
-
-# Parse a FIT file
-parser = FITParser()
-parsed_data = parser.parse_file("activity.fit")
-
-# Store the data
-storage = DataStorage()
-activity_id = storage.store_activity(parsed_data, username="test_user")
-
-# Get statistics
-stats = StatsEngine(storage)
-power_stats = stats.aggregate_metrics(metric="power")
-
-# Compare activities
-comparison = stats.compare_activities([1, 2, 3])
-
-# Get bike metrics
-bike_metrics = stats.get_bike_specific_metrics(activity_id)
-
-# Generate plots
-visualizer = Visualizer()
-plot_data = visualizer.generate_plot(storage.get_activity(activity_id), "power")
-```
-
-## Project Management with uv
-
-### Common uv Commands
-
-```bash
-# Install the project
+# Install dependencies
 uv sync
-
-# Install with all extras (dev dependencies)
-uv sync --all-extras
-
-# Run the API
-uv run litestar --app src.api.main:app run
-
-# Run the API with auto-reload
-uv run litestar --app src.api.main:app run --reload
 
 # Run tests
 uv run pytest tests/ -v
 
-# Run tests with coverage
-uv run pytest tests/ --cov=src --cov-report=term
-
-# Add a new dependency
+# Add a dependency
 uv add package-name
 
 # Add a dev dependency
 uv add --dev package-name
-
-# Update all dependencies
-uv lock --upgrade
-
-# Show dependency graph
-uv tree
 ```
-
-## Testing
-
-Run all tests:
-
-```bash
-# With uv
-uv run pytest tests/ -v
-
-# With pip
-pytest tests/ -v
-```
-
-Run specific test modules:
-
-```bash
-pytest tests/test_fit_parser.py -v
-pytest tests/test_storage.py -v
-pytest tests/test_stats.py -v
-pytest tests/test_api.py -v
-```
-
-## Configuration
-
-### Environment Variables
-
-- `DATABASE_URL`: Database connection URL (default: `sqlite:///fit_api.db`)
-- `DEBUG`: Enable debug mode (default: `True`)
-
-### Database Support
-
-- **SQLite**: Default, file-based database
-- **PostgreSQL**: Set `DATABASE_URL` to PostgreSQL connection string
-
-## Bike-Specific Features
-
-The API prioritizes bike-related metrics:
-
-- **Power**: Watts, average, max, min, standard deviation
-- **Cadence**: RPM, average, max, min, standard deviation
-- **Speed**: m/s and km/h, average, max, min
-- **Heart Rate**: BPM, average, max, min, standard deviation
-- **GPS**: Latitude, longitude, distance
-- **Altitude**: Meters, ascent, descent
-
-## Visualization
-
-All plots use the darker green color (`#006400`) as specified in the requirements. Available plot types:
-
-- Single metric plots
-- Multi-metric comparison plots
-- Summary plots with multiple subplots
-- Time series trend plots
 
 ## Success Criteria
 
@@ -340,61 +132,9 @@ All plots use the darker green color (`#006400`) as specified in the requirement
 - ✅ All bike-related metrics are stored and queryable
 - ✅ Time-based comparisons and aggregations work
 - ✅ Plots are generated with **darker green** (`#006400`)
-- ✅ Comprehensive test coverage for parsing, storage, and stats
-- ✅ Git history shows regular, meaningful commits
-
-## Why uv?
-
-We use `uv` as our Python package manager because it provides:
-
-- **Blazing Fast**: Much faster dependency resolution and installation
-- **Modern**: Built with Rust, designed for Python 3.11+
-- **Simple**: Single command interface for all operations
-- **Reliable**: Deterministic builds and reproducible environments
-- **Feature-rich**: Built-in virtual environment management, dependency locking, and more
-
-## Troubleshooting
-
-### "uvicorn is not installed" error
-
-This error occurs when trying to run the API without uvicorn. The fix is to ensure uvicorn is included in your dependencies. In this project, we've added it directly to the main dependencies in `pyproject.toml`:
-
-```toml
-dependencies = [
-    "garmin-fit-sdk>=21.0.0",
-    "litestar>=2.0.0",
-    "uvicorn>=0.27.0",  # <-- This is required for litestar run
-    "sqlalchemy>=2.0.0",
-    "pandas>=2.0.0",
-    "matplotlib>=3.0.0",
-]
-```
-
-After updating the `pyproject.toml`, run:
-```bash
-uv sync
-```
-
-### Correct command to run the API
-
-Use the `--app` flag to specify the application module:
-```bash
-uv run litestar --app src.api.main:app run
-```
-
-Not:
-```bash
-uv run litestar run src/api/main.py  # ❌ This will fail
-```
+- ✅ Comprehensive test coverage
+- ✅ Modern package management with uv
 
 ## License
 
 MIT License
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a new Pull Request

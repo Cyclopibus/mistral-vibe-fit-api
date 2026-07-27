@@ -1,3 +1,9 @@
+# ⚠️ AI-GENERATED CODE - DO NOT USE AS EXAMPLE
+
+**WARNING**: This repository contains 100% AI-generated code created to test the code version of Mistral Vibe from the web. The code in this repository should **NOT** be used as examples, references, or templates for your own projects. It is purely experimental and may contain errors, anti-patterns, or incomplete implementations.
+
+---
+
 # Garmin FIT File API
 
 A Python API using **Litestar** to parse, store, and analyze Garmin FIT files exclusively with the official [`fit-python-sdk`](https://github.com/garmin/fit-python-sdk).
